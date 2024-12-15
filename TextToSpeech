@@ -1,0 +1,105 @@
+package com.example.proyecto_pglh
+
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.os.Bundle
+import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.util.Locale
+
+class DetalleRecetaActivity : AppCompatActivity() {
+
+    private lateinit var textToSpeech: TextToSpeech
+    private val REQUEST_CODE_VOICE = 1
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_detalle_receta)
+
+        val recetaId = intent.getIntExtra("recetaId", -1)
+        if (recetaId == -1) {
+            Toast.makeText(this, "Error al cargar la receta", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        val baseDeDatos = BD(this)
+        val receta = baseDeDatos.obtenerRecetaPorId(recetaId)
+
+        if (receta != null) {
+            findViewById<TextView>(R.id.tvDetalleNombreComida).text = receta["nombreComida"] as String
+            findViewById<TextView>(R.id.tvDetalleTipo).text = "Tipo: ${receta["tipo"] as String}"
+            findViewById<TextView>(R.id.tvDetalleIngredientes).text = "Ingredientes: ${receta["ingredientes"] as String}"
+            findViewById<TextView>(R.id.tvDetallePasos).text = "Pasos: ${receta["pasos"] as String}"
+            findViewById<TextView>(R.id.tvDetalleInfoAdicional).text = "Información adicional: ${receta["infoAdicional"] as? String ?: "N/A"}"
+
+            val foto = receta["foto"] as? ByteArray
+            if (foto != null) {
+                val bitmap = BitmapFactory.decodeByteArray(foto, 0, foto.size)
+                findViewById<ImageView>(R.id.imgDetalleFotoComida).setImageBitmap(bitmap)
+            } else {
+                findViewById<ImageView>(R.id.imgDetalleFotoComida).setImageResource(R.drawable.ic_comida)
+            }
+        } else {
+            Toast.makeText(this, "Error al cargar la receta", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
+        findViewById<ImageButton>(R.id.btnVolver).setOnClickListener {
+            finish()
+        }
+        
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status != TextToSpeech.ERROR) {
+                textToSpeech.language = Locale.getDefault()
+            } else {
+                Toast.makeText(this, "Error al inicializar Text-to-Speech", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        findViewById<ImageButton>(R.id.btnMicPasos).setOnClickListener {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Di un comando como 'Dime los pasos'")
+            try {
+                startActivityForResult(intent, REQUEST_CODE_VOICE)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Tu dispositivo no soporta entrada de voz", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_VOICE && resultCode == RESULT_OK) {
+            val results = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val comando = results?.get(0)?.lowercase(Locale.getDefault())
+            if (comando != null) {
+                if (comando.contains("dime los pasos")) {
+                    val pasos = findViewById<TextView>(R.id.tvDetallePasos).text.toString()
+                    if (pasos.isNotEmpty()) {
+                        textToSpeech.speak(pasos, TextToSpeech.QUEUE_FLUSH, null, null)
+                    } else {
+                        Toast.makeText(this, "No hay pasos disponibles para leer", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "Comando no reconocido", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        if (::textToSpeech.isInitialized) {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
+        super.onDestroy()
+    } 
+}
