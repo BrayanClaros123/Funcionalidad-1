@@ -1,0 +1,91 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp" >
+
+    <ImageButton
+        android:id="@+id/btnVolver"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:backgroundTint="#314A12"
+        android:src="@android:drawable/ic_media_previous"
+        android:contentDescription="Volver"
+        android:layout_marginBottom="16dp" />
+
+    <ImageView
+        android:id="@+id/imgDetalleFotoComida"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="16dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/tvDetalleNombreComida"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nombre de la comida"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvDetalleTipo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tipo de comida"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvDetalleIngredientes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ingredientes: ..."
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:id="@+id/tvDetallePasos"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Pasos para la preparación: ..."
+                    android:textSize="14sp" />
+
+                <ImageButton
+                    android:id="@+id/btnMicPasos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="Micrófono"
+                    android:src="@drawable/ic_microfono" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvDetalleInfoAdicional"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Información adicional: ..."
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
